@@ -1,64 +1,80 @@
-let shoppingList = []; //Array to store shopping list items
+let taskList = []; //Task storage
 
-//Displays the main menu and returns user's choice
+//Display menu and return user choice
 function showMenu() {
     return prompt(
-        "Shopping List\n\n" +
-        "1. View List\n" +
-        "2. Add Item\n" +
-        "3. Remove Item\n" +
+        "Task Manager\n\n" +
+        "1. View Tasks\n" +
+        "2. Add Task\n" +
+        "3. Remove Task\n" +
         "4. Exit\n\n" +
-        "Choose an option (1-4):"
+        "Choose an option:"
     );
 }
 
-//Displays all items in the shopping list
-function viewItems() {
-    if (shoppingList.length === 0) {
-        alert("Your list is empty.");
+//Show tasks
+function viewTasks() {
+    if (taskList.length === 0) {
+        alert("No tasks yet.");
         return;
     }
 
-    let itemList = "Your Shopping List:\n";
-    shoppingList.forEach((item, index) => {
-        itemList += `${index + 1}. ${item}\n`;
+    let taskDisplay = "Tasks:\n";
+    taskList.forEach((task, index) => {
+        taskDisplay += `${index + 1}. [${task.priority}] ${task.description} (Due: ${task.dueDate})\n`;
     });
-    alert(itemList);
+
+    alert(taskDisplay);
 }
 
-//Adds a new item to the shopping list
-function addItem() {
-    let newItem = prompt("What do you want to add?");
-    if (newItem && newItem.trim() !== "") {
-        shoppingList.push(newItem.trim());
-        alert(`Added: "${newItem}"`);
-    } else {
-        alert("Item can't be empty.");
+//Add task
+function addTask() {
+    let description = prompt("Task description:");
+    if (!description || description.trim() === "") {
+        alert("Task can't be empty.");
+        return;
     }
+
+    let priority = prompt("Priority? (High, Medium, Low)").trim().toLowerCase();
+    let formattedPriority = priority.charAt(0).toUpperCase() + priority.slice(1); // Capitalize first letter
+
+    if (!["High", "Medium", "Low"].includes(formattedPriority)) {
+        alert("Enter High, Medium, or Low.");
+        return;
+    }
+
+    let dueDate = prompt("Due date (MM/DD/YYYY):").trim();
+    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dueDate)) {
+        alert("Use format MM/DD/YYYY.");
+        return;
+    }
+
+    taskList.push({ description, priority: formattedPriority, dueDate });
+    alert(`Added: [${formattedPriority}] ${description} (Due: ${dueDate})`);
 }
 
-//Removes an item from the shopping list by number
-function removeItem() {
-    if (shoppingList.length === 0) {
+//Removes task by number
+function removeTask() {
+    if (taskList.length === 0) {
         alert("Nothing to remove.");
         return;
     }
 
-    viewItems(); // Show current list before removal
-    let itemNumber = prompt("Enter the number to remove:");
-    if (itemNumber === null) return; // Handle cancel button
+    viewTasks(); 
+    let taskNumber = prompt("Task number to remove:");
+    if (taskNumber === null) return;
 
-    let index = parseInt(itemNumber) - 1;
-    if (!isNaN(index) && index >= 0 && index < shoppingList.length) {
-        let removedItem = shoppingList.splice(index, 1);
-        alert(`Removed: "${removedItem}"`);
+    let index = parseInt(taskNumber) - 1;
+    if (!isNaN(index) && index >= 0 && index < taskList.length) {
+        let removedTask = taskList.splice(index, 1);
+        alert(`Removed: [${removedTask[0].priority}] ${removedTask[0].description}`);
     } else {
         alert("Invalid number.");
     }
 }
 
-//Runs the shopping list app in a loop until the user exits
-function shoppingListApp() {
+//Runs the app loop
+function main() {
     let running = true;
 
     while (running) {
@@ -66,23 +82,22 @@ function shoppingListApp() {
 
         switch (choice) {
             case "1":
-                viewItems();
+                viewTasks();
                 break;
             case "2":
-                addItem();
+                addTask();
                 break;
             case "3":
-                removeItem();
+                removeTask();
                 break;
             case "4":
-                alert("Goodbye!");
+                alert("Exiting...");
                 running = false;
                 break;
             default:
-                alert("Invalid choice. Try again.");
+                alert("Invalid choice.");
         }
     }
 }
 
-//Start the Shopping List App
-shoppingListApp();
+main();
