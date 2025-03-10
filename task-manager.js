@@ -1,6 +1,6 @@
-let taskList = []; //Task storage
+let taskList = []; // Task storage
 
-//Display menu and return user choice
+// Displays menu and returns user choice
 function showMenu() {
     return prompt(
         "Task Manager\n\n" +
@@ -12,7 +12,7 @@ function showMenu() {
     );
 }
 
-//Show tasks
+// Shows all tasks
 function viewTasks() {
     if (taskList.length === 0) {
         alert("No tasks yet.");
@@ -27,33 +27,37 @@ function viewTasks() {
     alert(taskDisplay);
 }
 
-//Add task
-function addTask() {
-    let description = prompt("Task description:");
-    if (!description || description.trim() === "") {
-        alert("Task can't be empty.");
-        return;
-    }
-
-    let priority = prompt("Priority? (High, Medium, Low)").trim().toLowerCase();
-    let formattedPriority = priority.charAt(0).toUpperCase() + priority.slice(1); // Capitalize first letter
-
-    if (!["High", "Medium", "Low"].includes(formattedPriority)) {
-        alert("Enter High, Medium, or Low.");
-        return;
-    }
-
-    let dueDate = prompt("Due date (MM/DD/YYYY):").trim();
-    if (!/^\d{2}\/\d{2}\/\d{4}$/.test(dueDate)) {
-        alert("Use format MM/DD/YYYY.");
-        return;
-    }
-
-    taskList.push({ description, priority: formattedPriority, dueDate });
-    alert(`Added: [${formattedPriority}] ${description} (Due: ${dueDate})`);
+// Validates due date format (MM/DD/YYYY)
+function isValidDate(date) {
+    return /^\d{2}\/\d{2}\/\d{4}$/.test(date);
 }
 
-//Removes task by number
+// Adds a task with validation
+function addTask() {
+    let description;
+    do {
+        description = prompt("Task description:").trim();
+        if (!description) alert("Task can't be empty.");
+    } while (!description);
+
+    let priority;
+    do {
+        priority = prompt("Priority? (High, Medium, Low)").trim().toLowerCase();
+        priority = priority.charAt(0).toUpperCase() + priority.slice(1);
+        if (!["High", "Medium", "Low"].includes(priority)) alert("Enter High, Medium, or Low.");
+    } while (!["High", "Medium", "Low"].includes(priority));
+
+    let dueDate;
+    do {
+        dueDate = prompt("Due date (MM/DD/YYYY):").trim();
+        if (!isValidDate(dueDate)) alert("Use format MM/DD/YYYY.");
+    } while (!isValidDate(dueDate));
+
+    taskList.push({ description, priority, dueDate });
+    alert(`Added: [${priority}] ${description} (Due: ${dueDate})`);
+}
+
+// Removes a task with validation
 function removeTask() {
     if (taskList.length === 0) {
         alert("Nothing to remove.");
@@ -61,19 +65,19 @@ function removeTask() {
     }
 
     viewTasks(); 
-    let taskNumber = prompt("Task number to remove:");
-    if (taskNumber === null) return;
+    let index;
+    do {
+        let taskNumber = prompt("Task number to remove:");
+        if (taskNumber === null) return;
+        index = parseInt(taskNumber) - 1;
+        if (isNaN(index) || index < 0 || index >= taskList.length) alert("Invalid number.");
+    } while (isNaN(index) || index < 0 || index >= taskList.length);
 
-    let index = parseInt(taskNumber) - 1;
-    if (!isNaN(index) && index >= 0 && index < taskList.length) {
-        let removedTask = taskList.splice(index, 1);
-        alert(`Removed: [${removedTask[0].priority}] ${removedTask[0].description}`);
-    } else {
-        alert("Invalid number.");
-    }
+    let removedTask = taskList.splice(index, 1);
+    alert(`Removed: [${removedTask[0].priority}] ${removedTask[0].description}`);
 }
 
-//Runs the app loop
+// Runs the app loop and displays remaining tasks after exit
 function main() {
     let running = true;
 
@@ -91,13 +95,24 @@ function main() {
                 removeTask();
                 break;
             case "4":
-                alert("Exiting...");
                 running = false;
                 break;
             default:
                 alert("Invalid choice.");
         }
     }
+
+    // Show remaining tasks when exiting
+    if (taskList.length > 0) {
+        let remainingTasks = "Remaining Tasks:\n";
+        taskList.forEach((task, index) => {
+            remainingTasks += `${index + 1}. [${task.priority}] ${task.description} (Due: ${task.dueDate})\n`;
+        });
+        alert(remainingTasks);
+    } else {
+        alert("No tasks left.");
+    }
 }
 
+// Start the app
 main();
